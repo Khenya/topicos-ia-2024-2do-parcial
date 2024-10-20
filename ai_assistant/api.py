@@ -15,18 +15,32 @@ app = FastAPI(title="AI Travel Agent API")
 def get_agent() -> ReActAgent:
     return TravelAgent().get_agent()
 
+from fastapi import Query, Depends, HTTPException
+from typing import List, Optional
+
 @app.get("/recommendations/places")
 def recommend_places(
-    city: str,
-    notes: Optional[List[str]] = Query(None),
+    city: str = Query(..., description="City to get recommendations for"),
+    notes: Optional[List[str]] = Query(None, description="Optional notes to consider"),
     agent: ReActAgent = Depends(get_agent)
 ):
-    prompt = f"Recommend places to visit in {city}."
-    if notes:
-        prompt += f" Consider these notes: {notes}."
-    
-    response = agent.chat(prompt)
-    return AgentAPIResponse(status="OK", agent_response=str(response))
+    try:
+        # Construir el prompt con o sin notas
+        if notes:
+            prompt = f"Recommend places to visit in {city} in Bolivia with the following notes: {notes}"
+        else:
+            prompt = f"Recommend places to visit in {city} in Bolivia."
+        
+        # Llamada al agente para obtener la respuesta
+        agent_response = agent.chat(prompt)
+        
+        # Retornar la respuesta del agente
+        return AgentAPIResponse(status="OK", agent_response=str(agent_response))
+
+    except Exception as e:
+        # Registrar el error y lanzar un 500 con el mensaje de error
+        print(f"Error processing request: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error: Could not process the recommendation.")
 
 @app.get("/recommendations/hotels")
 def recommend_hotels(
