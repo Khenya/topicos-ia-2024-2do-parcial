@@ -25,20 +25,16 @@ def recommend_places(
     agent: ReActAgent = Depends(get_agent)
 ):
     try:
-        # Construir el prompt con o sin notas
         if notes:
             prompt = f"Recommend places to visit in {city} in Bolivia with the following notes: {notes}"
         else:
             prompt = f"Recommend places to visit in {city} in Bolivia."
         
-        # Llamada al agente para obtener la respuesta
         agent_response = agent.chat(prompt)
         
-        # Retornar la respuesta del agente
         return AgentAPIResponse(status="OK", agent_response=str(agent_response))
 
     except Exception as e:
-        # Registrar el error y lanzar un 500 con el mensaje de error
         print(f"Error processing request: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error: Could not process the recommendation.")
 

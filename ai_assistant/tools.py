@@ -11,7 +11,6 @@ from ai_assistant.models import (
     RestaurantReservation,
 )
 from ai_assistant.utils import save_reservation
-import wikipediaapi
 import json
 from typing import List
 
@@ -127,19 +126,6 @@ def trip_summary() -> str:
     summary += f"Total Cost: ${total_cost:.2f}\n"
 
     return summary
-
-def get_wikipedia_page(lookup_term: str) -> str:
-    user_agent = 'SegundoParcial/1.0 (https://www.upb.edu/)'
-    wiki_wiki = wikipediaapi.Wikipedia('es')
-    page = wiki_wiki.page(lookup_term)
-    
-    if page.exists():
-        return page.text
-    else:
-        return f"No Wikipedia page found for {lookup_term}."
-
-
-wikipedia_tool = FunctionTool.from_defaults(fn=get_wikipedia_page, return_direct=False)
 
 trip_summary_tool = FunctionTool.from_defaults(fn=trip_summary, return_direct=False)
 
